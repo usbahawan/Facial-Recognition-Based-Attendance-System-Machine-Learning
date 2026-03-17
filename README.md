@@ -90,4 +90,3 @@ python main.py
 -   **Usbah Saleem**
 
 ---
-*Developed for Machine Learning Lab Project.*
