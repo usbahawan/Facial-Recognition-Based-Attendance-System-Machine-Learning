@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Attendance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    video {
+      width: 90%;
+      max-width: 400px;
+      border: 3px solid #444;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 15px;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+    button:active {
+      background: #0056b3;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>📸 Mark Attendance</h2>
+  <video id="camera" autoplay playsinline></video>
+  <br>
+  <button id="captureBtn">Mark Attendance</button>
+  <div id="result"></div>
+
+  <script>
+    const video = document.getElementById("camera");
+    const btn = document.getElementById("captureBtn");
+    const result = document.getElementById("result");
+
+    // ✅ Ask for camera
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Camera access denied or not available: " + err.message);
+      }
+    }
+
+    startCamera();
+
+    btn.addEventListener("click", async () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      const dataUrl = canvas.toDataURL("image/jpeg");
+      result.textContent = "⏳ Sending for recognition...";
+
+      const res = await fetch("/mobile_capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        result.textContent = data.message;
+      } else {
+        result.textContent = data.message || "❌ Face not recognized";
+      }
+    });
+  </script>
+</body>
+</html>

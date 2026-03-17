@@ -1,0 +1,12 @@
+@app.route("/test_cam")
+def test_cam():
+    return """<!DOCTYPE html>
+<html><body>
+<h3>Camera Test</h3>
+<video id='v' autoplay playsinline style='width:80%;border:2px solid #000;'></video>
+<script>
+navigator.mediaDevices.getUserMedia({ video: true })
+.then(s => v.srcObject = s)
+.catch(e => alert("Camera error: " + e.message));
+</script>
+</body></html>"""
